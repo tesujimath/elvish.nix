@@ -36,6 +36,7 @@
               rec {
                 inherit (attrs) owner repo version hash;
                 pname = attrs.repo;
+                fetchSubmodules = if attrs ? fetchSubmodules then attrs.fetchSubmodules else false;
 
                 dontConfigure = true;
                 dontBuild = true;
@@ -46,6 +47,7 @@
                     repo = repo;
                     rev = version;
                     hash = hash;
+                    inherit fetchSubmodules;
                   };
 
                 installPhase = ''
@@ -84,10 +86,7 @@
               };
 
 
-          elvish-full = withPackages (ps: with ps; [
-            bash-env-elvish
-            elvish-tap
-          ]);
+          elvish-with-all-packages = withPackages (ps: pkgs.lib.attrsets.attrValues ps);
 
           elvish = vanilla-elvish // { inherit buildElvishPackage withPackages; };
 
@@ -104,7 +103,7 @@
           packages = {
             default = elvish;
 
-            inherit elvish-full;
+            inherit elvish-with-all-packages;
           };
         }
       );
