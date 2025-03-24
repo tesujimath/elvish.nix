@@ -34,7 +34,7 @@
             in
             mkDerivation
               rec {
-                inherit (attrs) owner repo version hash;
+                inherit (attrs) domain owner repo version hash;
                 pname = attrs.repo;
                 fetchSubmodules = if attrs ? fetchSubmodules then attrs.fetchSubmodules else false;
 
