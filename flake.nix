@@ -23,8 +23,6 @@
             in
             attrs:
             let
-              inherit (attrs) domain;
-
               fetchers =
                 {
                   "github.com" = fetchFromGitHub;
@@ -35,7 +33,7 @@
             mkDerivation
               rec {
                 inherit (attrs) domain owner repo version hash;
-                pname = attrs.repo;
+                pname = "${owner}-${repo}";
                 fetchSubmodules = if attrs ? fetchSubmodules then attrs.fetchSubmodules else false;
 
                 dontConfigure = true;

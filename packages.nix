@@ -127,7 +127,7 @@
       owner = "muesli";
       repo = "elvish-libs";
       version = "bfdc441990d95eec02489e071418a8718f3e3794";
-      hash = "sha256-tA6wes6MFoapN94+hu2Qv//B5iVCH1Ga2affD5OmPgU=";
+      hash = "sha256-vmSDGkH2WRfvDLfnHXtI1tE94cGd+hzFPOib82Gs85U=";
     };
 
   xiaq-edit =
