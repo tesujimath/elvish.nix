@@ -49,27 +49,62 @@
                   };
 
                 installPhase = ''
-                  mkdir -p $out/elvish/lib/$domain/$owner/$repo
-                  cp -a $src/* $out/elvish/lib/$domain/$owner/$repo
+                  mkdir -p $out/share/elvish/lib/$domain/$owner/$repo
+                  cp -a $src/* $out/share/elvish/lib/$domain/$owner/$repo
                 '';
               } // attrs;
 
-          packages = import ./packages.nix { inherit buildElvishPackage; };
+          withPackages =
+            let inherit (pkgs) lib stdenv makeWrapper;
+              inherit (lib) makeSearchPath;
+              inherit (stdenv) mkDerivation;
+            in
+            ps: mkDerivation
+              {
+                name = "elvish-with-packages";
+
+                dontUnpack = true;
+                dontConfigure = true;
+                dontBuild = true;
+
+                nativeBuildInputs = [
+                  makeWrapper
+                ];
+
+                installPhase = ''
+                  mkdir -p $out/bin
+                  cp -a "${vanilla-elvish}/bin/elvish" $out/bin/elvish
+                '';
+
+                fixupPhase = ''
+                  wrapProgram $out/bin/elvish --prefix XDG_DATA_DIRS : "${makeSearchPath "share" (map (p: "${p}") ps)}"
+                '';
+              };
+
+
+          all-elvish-packages = import ./packages.nix { inherit buildElvishPackage; };
+          bash-env-elvish = all-elvish-packages.bash-env-elvish;
+          elvish-tap = all-elvish-packages.elvish-tap;
+
+          elvish-full = withPackages [ bash-env-elvish elvish-tap ];
         in
         {
           devShells =
             let
-              inherit (pkgs) bashInteractive mkShell;
+              inherit (pkgs) bashInteractive lib mkShell;
             in
             {
               default = mkShell { buildInputs = [ bashInteractive ]; };
             };
 
-          packages = packages;
+          # all-elvish-packages = (map (p: "${p."${system}"}") (pkgs.lib.attrVals all-elvish-packages));
+          inherit all-elvish-packages bash-env-elvish;
+
+          packages = all-elvish-packages // {
+            default = vanilla-elvish;
+
+            inherit elvish-full;
+          };
         }
       );
 }
-
-
-
-
