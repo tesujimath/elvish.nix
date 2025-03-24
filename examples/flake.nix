@@ -7,7 +7,7 @@
     flake-utils.url = "github:numtide/flake-utils";
 
     elvish = {
-      url = "./..";
+      url = "github:tesujimath/elvish.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -22,7 +22,7 @@
 
           elvish = inputs.elvish.packages.${system}.default;
 
-          elvish-full = elvish.withPackages (ps: with ps; [
+          elvish-with-bash-env = elvish.withPackages (ps: with ps; [
             bash-env-elvish
           ]);
 
@@ -33,10 +33,10 @@
               inherit (pkgs) bashInteractive mkShell;
             in
             {
-              default = mkShell { buildInputs = [ bashInteractive elvish-full ]; };
+              default = mkShell { buildInputs = [ bashInteractive elvish-with-bash-env ]; };
             };
 
-          packages.default = elvish-full;
+          packages.default = elvish-with-bash-env;
         }
       );
 }

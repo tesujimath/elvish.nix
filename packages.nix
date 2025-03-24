@@ -1,6 +1,6 @@
 # Complete list of packages from [awesome-elvish](https://github.com/elves/awesome-elvish).
 #
-# Packages whoe repositories have distinguishable names are names after the bare repo.
+# Packages whose repositories have distinguishable names are named after the bare repo.
 # Otherwise the owner is used as a prefix.
 
 # Inclusion here does not imply fitness for purpose or even that the packages work.
