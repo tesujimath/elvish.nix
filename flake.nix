@@ -1,5 +1,5 @@
 {
-  description = "Elvish epm packages and support";
+  description = "Elvish packages and builder";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -54,12 +54,14 @@
                 '';
               } // attrs;
 
+          all-elvish-packages = import ./packages.nix { inherit buildElvishPackage; };
+
           withPackages =
             let inherit (pkgs) lib stdenv makeWrapper;
               inherit (lib) makeSearchPath;
               inherit (stdenv) mkDerivation;
             in
-            ps: mkDerivation
+            select-ps: mkDerivation
               {
                 name = "elvish-with-packages";
 
@@ -77,31 +79,30 @@
                 '';
 
                 fixupPhase = ''
-                  wrapProgram $out/bin/elvish --prefix XDG_DATA_DIRS : "${makeSearchPath "share" (map (p: "${p}") ps)}"
+                  wrapProgram $out/bin/elvish --prefix XDG_DATA_DIRS : "${makeSearchPath "share" (map (p: "${p}") (select-ps all-elvish-packages))}"
                 '';
               };
 
 
-          all-elvish-packages = import ./packages.nix { inherit buildElvishPackage; };
-          bash-env-elvish = all-elvish-packages.bash-env-elvish;
-          elvish-tap = all-elvish-packages.elvish-tap;
+          elvish-full = withPackages (ps: with ps; [
+            bash-env-elvish
+            elvish-tap
+          ]);
 
-          elvish-full = withPackages [ bash-env-elvish elvish-tap ];
+          elvish = vanilla-elvish // { inherit buildElvishPackage withPackages; };
+
         in
         {
           devShells =
             let
-              inherit (pkgs) bashInteractive lib mkShell;
+              inherit (pkgs) bashInteractive mkShell;
             in
             {
               default = mkShell { buildInputs = [ bashInteractive ]; };
             };
 
-          # all-elvish-packages = (map (p: "${p."${system}"}") (pkgs.lib.attrVals all-elvish-packages));
-          inherit all-elvish-packages bash-env-elvish;
-
-          packages = all-elvish-packages // {
-            default = vanilla-elvish;
+          packages = {
+            default = elvish;
 
             inherit elvish-full;
           };
